@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: n8n
+    env: node
+    branch: main
+    buildCommand: |
+      echo "Usando Node 24..."
+      nvm install 24
+      nvm use 24
+      echo "Instalando pnpm global..."
+      npm install -g pnpm
+      echo "Aumentando memoria para build..."
+      export NODE_OPTIONS="--max_old_space_size=4096"
+      echo "Instalando dependencias..."
+      pnpm install
+      echo "Compilando n8n..."
+      pnpm run build
+    startCommand: n8n start
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_OPTIONS
+        value: "--max_old_space_size=4096"
+      - key: N8N_BASIC_AUTH_ACTIVE
+        value: "true"
+      - key: N8N_BASIC_AUTH_USER
+        value: "admin"
+      - key: N8N_BASIC_AUTH_PASSWORD
+        value: "Jantete2007!"
+      - key: DB_TYPE
+        value: "postgresdb"
+      - key: DB_POSTGRESDB_CONNECTION_URL
+        value: "postgresql://neondb_owner:npg_br0gl7twQxyq@ep-sparkling-violet-abt21ufj-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+      - key: N8N_PORT
+        value: "5678"
+      - key: N8N_HOST
+        value: "n8n-od2i.onrender.com"
+      - key: WEBHOOK_URL
+        value: "https://n8n-od2i.onrender.com/"
