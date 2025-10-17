@@ -2,38 +2,46 @@ services:
   - type: web
     name: n8n
     env: node
-    branch: main
+    plan: free
     buildCommand: |
-      echo "Usando Node 24..."
-      nvm install 24
-      nvm use 24
-      echo "Instalando pnpm global..."
-      npm install -g pnpm
-      echo "Aumentando memoria para build..."
-      export NODE_OPTIONS="--max_old_space_size=4096"
-      echo "Instalando dependencias..."
+      corepack enable
       pnpm install
-      echo "Compilando n8n..."
       pnpm run build
     startCommand: n8n start
+    runtime: node
+    nodeVersion: 20.19.0
+    autoDeploy: true
     envVars:
-      - key: NODE_VERSION
-        value: "24"
-      - key: NODE_OPTIONS
-        value: "--max_old_space_size=4096"
+      # --- Autenticación básica ---
       - key: N8N_BASIC_AUTH_ACTIVE
         value: "true"
       - key: N8N_BASIC_AUTH_USER
         value: "admin"
       - key: N8N_BASIC_AUTH_PASSWORD
-        value: "Jantete2007!"
+        sync: false   # (lo pondrás manualmente en Render por seguridad)
+
+      # --- Base de datos Neon ---
       - key: DB_TYPE
         value: "postgresdb"
       - key: DB_POSTGRESDB_CONNECTION_URL
-        value: "postgresql://neondb_owner:npg_br0gl7twQxyq@ep-sparkling-violet-abt21ufj-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+        sync: false   # también la pondrás en Render
+
+      # --- Configuración general ---
       - key: N8N_PORT
         value: "5678"
       - key: N8N_HOST
-        value: "n8n-od2i.onrender.com"
+        value: "0.0.0.0"
       - key: WEBHOOK_URL
-        value: "https://n8n-od2i.onrender.com/"
+        sync: false   # la URL la pondrás cuando Render asigne el dominio
+
+      # --- Seguridad y optimización ---
+      - key: GENERIC_TIMEZONE
+        value: "Europe/Madrid"
+      - key: EXECUTIONS_DATA_SAVE_ON_SUCCESS
+        value: "all"
+      - key: EXECUTIONS_DATA_SAVE_ON_ERROR
+        value: "all"
+      - key: EXECUTIONS_DATA_PRUNE
+        value: "true"
+      - key: EXECUTIONS_DATA_MAX_AGE
+        value: "336" # en horas = 14 días
